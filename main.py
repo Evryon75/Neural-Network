@@ -4,8 +4,6 @@ import numpy as np
 
 X = np.random.randn(4, 10)
 
-np.random.seed(0)
-
 
 class Activations(enum.Enum):
     ReLU = 1
@@ -52,5 +50,3 @@ print(output_layer.output)
 
 loss = calculate_loss(output_layer.output, [1, 1, 0, 0])
 print(loss)
-
-# https://www.youtube.com/watch?v=dEXPMQXoiLc
