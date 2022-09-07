@@ -1,36 +1,56 @@
+import enum
+
 import numpy as np
 
-X = [
-    [1.32, 2.12, 1.5],
-    [-2.1, -0.2, 4.1],
-    [3.63, 2.12, -3.3]
-]
+X = np.random.randn(4, 10)
 
 np.random.seed(0)
+
+
+class Activations(enum.Enum):
+    ReLU = 1
+    Softmax = 2
 
 
 class Layer:
     def __init__(self, n_inputs, n_neurons):
         self.output = None
-        self.weights = np.random.randn(n_inputs, n_neurons) * 0.1
+        self.weights = np.random.randn(n_inputs, n_neurons) * 0.05
         self.biases = np.zeros((1, n_neurons))
 
-    def advance(self, inputs):
-        self.output = np.dot(inputs, self.weights) + self.biases
+    def advance(self, inputs, activation):
+        output_raw = np.dot(inputs, self.weights) + self.biases
+        if activation == Activations.ReLU:
+            self.output = np.maximum(0, output_raw)
+        elif activation == Activations.Softmax:
+            exp_output = np.exp(output_raw - np.max(output_raw, axis=1, keepdims=True))
+            self.output = exp_output / np.sum(exp_output, axis=1, keepdims=True)
 
 
-class Activation:
-    def __init__(self):
-        self.output = None
+def calculate_loss(prediction, expected):
+    """
+    Readable version:
+        length = len(prediction)
+        clipped = np.clip(prediction, 1e-7, 1 - 1e-7)
+        neg_log = -np.log(clipped[range(length), expected])
+        return np.mean(neg_log)
+    """
+    return np.mean(-np.log(np.clip(prediction, 1e-7, 1 - 1e-7)[range(len(prediction)), expected]))
 
-    def forward(self, inputs):
-        self.output = np.maximum(0, inputs)
 
+input_layer = Layer(10, 5)
+layer_one = Layer(5, 5)
+layer_two = Layer(5, 5)
+output_layer = Layer(5, 2)
 
-layer1 = Layer(3, 5)
-layer2 = Layer(5, 2)
+input_layer.advance(X, Activations.ReLU)
+layer_one.advance(input_layer.output, Activations.ReLU)
+layer_two.advance(layer_one.output, Activations.ReLU)
+output_layer.advance(layer_two.output, Activations.Softmax)
 
-layer1.advance(X)
-activation1 = Activation()
-activation1.forward(layer1.output)
-print(activation1.output)
+print(output_layer.output)
+
+loss = calculate_loss(output_layer.output, [1, 1, 0, 0])
+print(loss)
+
+# https://www.youtube.com/watch?v=dEXPMQXoiLc
