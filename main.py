@@ -23,8 +23,6 @@ data = pd.read_csv("data set/student-mat.csv", sep=";")[[
 predictions = parse_pass(np.array(data.get("G3")))
 raw_inputs = np.array(data.drop("G3", 1))
 
-# TODO: Split inputs into training data and testing data, make a utility function for that maybe
-
 input_layer = Layer(5, 8)
 hidden_layer = Layer(8, 8)
 output_layer = Layer(8, 2)
