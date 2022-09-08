@@ -13,3 +13,10 @@ class Activation(enum.Enum):
     """
     ReLU = 1
     Softmax = 2
+
+
+def parse_pass(grades):
+    temp = []
+    for i in grades:
+        temp.append(1 if i > 10 else 0)
+    return temp

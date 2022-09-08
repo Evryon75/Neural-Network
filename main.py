@@ -2,24 +2,35 @@
  Main file
 """
 
+import warnings
 import numpy as np
+import pandas as pd
 from layer import Layer
 from optimization import calculate_loss
-from utils import Activation
+from utils import Activation, parse_pass
 
-X = np.random.randn(4, 10)
+warnings.simplefilter(action='ignore', category=FutureWarning)  # Annoying future warnings from pandas
 
-input_layer = Layer(10, 5)
-layer_one = Layer(5, 5)
-layer_two = Layer(5, 5)
-output_layer = Layer(5, 2)
+# Reading from data set
+data = pd.read_csv("data set/student-mat.csv", sep=";")[[
+    "G1",  # Max: 19, Min: 3
+    "G2",  # Max: 19, Min: 0
+    "G3",  # Max: 20, Min: 0
+    "studytime",  # Max: 4, Min: 1
+    "failures",  # Max: 3, Min: 0
+    "absences"  # Max: 75, Min: 0
+]]
+predictions = parse_pass(np.array(data.get("G3")))
+raw_inputs = np.array(data.drop("G3", 1))
 
-input_layer.advance(X, Activation.ReLU)
-layer_one.advance(input_layer.output, Activation.ReLU)
-layer_two.advance(layer_one.output, Activation.ReLU)
-output_layer.advance(layer_two.output, Activation.Softmax)
+# TODO: Split inputs into training data and testing data, make a utility function for that maybe
 
-print(output_layer.output)
+input_layer = Layer(5, 8)
+hidden_layer = Layer(8, 8)
+output_layer = Layer(8, 2)
 
-loss = calculate_loss(output_layer.output, [1, 1, 0, 0])
-print(loss)
+input_layer.advance(raw_inputs, Activation.ReLU)
+hidden_layer.advance(input_layer.output, Activation.ReLU)
+output_layer.advance(hidden_layer.output, Activation.Softmax)
+
+loss = calculate_loss(output_layer.output, predictions)
