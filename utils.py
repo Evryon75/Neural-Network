@@ -18,7 +18,7 @@ class Activation(enum.Enum):
 
 def parse_pass(grades: np.ndarray) -> list:
     """
-    Creates a list with 1 or 0, 1 means if the grade is above 10 and 0 if it is below 10
+    Creates a list with 1 or 0, it is 1 if the grade is above 10 and 0 if it is below 10
     :param grades: List with grades
     :return: List with 0 or 1 for failed or passed
     """

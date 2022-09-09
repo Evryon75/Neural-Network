@@ -29,11 +29,9 @@ def sigmoid_deriv(s):
     return s * (1 - s)
 
 
-def back_propagation(layers: list, inputs, expected):
-
+def back_propagate(layers: list, inputs, expected):
     error_deltas = []
 
     for layer in reversed(layers):
-        temp: Layer = layer
-        output = temp.output
+        output = layer.output
         error_deltas.append(calculate_loss(output, expected) * sigmoid_deriv(output))
