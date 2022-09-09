@@ -17,7 +17,7 @@ class Layer:
         self.weights = np.random.randn(n_inputs, n_neurons) * 0.05
         self.biases = np.zeros((1, n_neurons))
 
-    def advance(self, inputs, activation: Activation):
+    def advance(self, inputs: np.ndarray, activation: Activation):
         """
         Processes the input and produces an output with the specified activation function
         :param inputs: Inputs needed to produce output data from the instance

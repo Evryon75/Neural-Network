@@ -4,8 +4,10 @@
 
 import numpy as np
 
+from layer import Layer
 
-def calculate_loss(prediction, expected):
+
+def calculate_loss(prediction: np.ndarray, expected: list):
     """
     Calculates the loss from the network's prediction
     :param prediction: The final layer's output
@@ -14,10 +16,24 @@ def calculate_loss(prediction, expected):
     """
     """
     Readable version:
-        length = len(prediction)
-        clipped = np.clip(prediction, 1e-7, 1 - 1e-7)
-        neg_log = -np.log(clipped[range(length), expected])
-        return np.mean(neg_log)
+        length = len(prediction)  # The length of the predictions list
+        clipped = np.clip(prediction, 1e-7, 1 - 1e-7)  # In case any value is 0
+        neg_log = -np.log(clipped[range(length), expected])  # Calculating the loss on each element
+        return np.mean(neg_log)  # Average of all losses
     I used a one-liner for memory efficiency and possibly faster execution
     """
     return np.mean(-np.log(np.clip(prediction, 1e-7, 1 - 1e-7)[range(len(prediction)), expected]))
+
+
+def sigmoid_deriv(s):
+    return s * (1 - s)
+
+
+def back_propagation(layers: list, inputs, expected):
+
+    error_deltas = []
+
+    for layer in reversed(layers):
+        temp: Layer = layer
+        output = temp.output
+        error_deltas.append(calculate_loss(output, expected) * sigmoid_deriv(output))
