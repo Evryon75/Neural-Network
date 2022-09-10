@@ -24,11 +24,11 @@ data = pd.read_csv("data set/student-mat.csv", sep=";")[[
     "absences"  # Max: 75, Min: 0
 ]]
 raw_y = parse_pass(np.array(data.get("G3")))
-expected = np.array(batcher(raw_y[0:350], 5))
+expected = np.array(batcher(raw_y[0:380], 5))
 raw_inputs = np.array(data.drop("G3", 1))
-X = np.array(batcher(raw_inputs.tolist()[0:350], 5))
-test_X = raw_inputs[350:396]
-test_Y = raw_y[350:396]
+X = np.array(batcher(raw_inputs.tolist()[0:380], 5))
+test_X = raw_inputs[380:396]
+test_Y = raw_y[380:396]
 
 hidden_layer = Layer(5, 5)
 output_layer = Layer(5, 5)
