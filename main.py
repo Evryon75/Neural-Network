@@ -13,7 +13,7 @@ from optimization import back_propagate
 from utils import Activation, parse_pass, batcher
 
 warnings.simplefilter(action='ignore', category=FutureWarning)  # Annoying future warnings from pandas
-
+np.random.seed(0)
 # Reading from data set
 data = pd.read_csv("data set/student-mat.csv", sep=";")[[
     "G1",  # Max: 19, Min: 3
@@ -24,17 +24,14 @@ data = pd.read_csv("data set/student-mat.csv", sep=";")[[
     "absences"  # Max: 75, Min: 0
 ]]
 raw_y = parse_pass(np.array(data.get("G3")))
-expected = np.array(batcher(raw_y[0:350], 10))
+expected = np.array(batcher(raw_y[0:350], 5))
 raw_inputs = np.array(data.drop("G3", 1))
-X = np.array(batcher(raw_inputs.tolist()[0:350], 10))
+X = np.array(batcher(raw_inputs.tolist()[0:350], 5))
 test_X = raw_inputs[350:396]
 test_Y = raw_y[350:396]
 
-input_layer = Layer(5, 8)
-hidden_layer = Layer(8, 8)
-output_layer = Layer(8, 2)
-
-batch_counter = 1
+hidden_layer = Layer(5, 5)
+output_layer = Layer(5, 5)
 
 
 def advance_network(X_input):
@@ -42,20 +39,20 @@ def advance_network(X_input):
     Helper function to advance the network here
     :param X_input: Input data
     """
-    input_layer.advance(np.array(X_input), Activation.ReLU)
-    hidden_layer.advance(input_layer.output, Activation.ReLU)
+    hidden_layer.advance(np.array(X_input), Activation.ReLU)
     output_layer.advance(hidden_layer.output, Activation.Softmax)
 
 
+batch_counter = 1
 for i, y in zip(X, expected):
     advance_network(i)
-    back_propagate([input_layer, hidden_layer, output_layer], i, y)
+    back_propagate(hidden_layer, output_layer, y, i)
     print(Fore.YELLOW + "Batch:", batch_counter)
     batch_counter += 1
     for j, k in zip(output_layer.output, y):
         print(Fore.BLUE + Style.BRIGHT + str(j[k] * 100)[0:5] + Style.RESET_ALL, "%")
     print()
-    time.sleep(0)  # 0.3
+    time.sleep(0.3)
 
 print(Fore.YELLOW + "Training finished, testing data results:")
 advance_network(test_X)
@@ -64,14 +61,14 @@ wrong = 0
 for output, y in zip(output_layer.output, test_Y):
     if output[y] > 0.5:
         correct += 1
-        print(Fore.GREEN + Style.BRIGHT + "This student", "passed" if y == 1 else "failed", "G3")
+        print(Fore.GREEN + Style.BRIGHT + "This student", "passed" if y > 2 else "failed", "G3")
         print(Fore.LIGHTBLACK_EX + Style.NORMAL + "Predicted with an accuracy of", str(output[y] * 100)[0:5], "%")
-        time.sleep(0)  # 0.3
+        time.sleep(0.3)
     else:
         wrong += 1
-        print(Fore.RED + Style.BRIGHT + "This student", "passed" if y == 1 else "failed", "G3")
+        print(Fore.RED + Style.BRIGHT + "This student", "passed" if y > 2 else "failed", "G3")
         print(Fore.LIGHTBLACK_EX + Style.NORMAL + "Predicted with an accuracy of", str(output[y] * 100)[0:5], "%")
-        time.sleep(0)  # 1
+        time.sleep(1)
 
 print(Style.RESET_ALL)
 print("Correct answers:", str(correct) + " - ", str(round(correct / (correct + wrong) * 100, 2)) + "%")

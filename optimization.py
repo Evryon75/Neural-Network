@@ -1,8 +1,10 @@
 """
  File used for loss calculation weight optimization
 """
+import random
 
 import numpy as np
+from colorama import Style
 
 from layer import Layer
 
@@ -29,9 +31,16 @@ def sigmoid_deriv(s):
     return s * (1 - s)
 
 
-def back_propagate(layers: list, inputs, expected):
-    error_deltas = []
+def back_propagate(hidden_layer, output_layer, expected, inputs):
+    output_error = []
+    for z, y in zip(output_layer.output, expected):
+        temp = []
+        for j in range(5):
+            temp.append(0 - z[j])
+        temp[y] = 1 - z[y]
+        output_error.append(temp)
+    output_delta = output_error * sigmoid_deriv(output_layer.output)
+    hidden_delta = output_delta.dot(hidden_layer.weights) * sigmoid_deriv(hidden_layer.output)
 
-    for layer in reversed(layers):
-        output = layer.output
-        error_deltas.append(calculate_loss(output, expected) * sigmoid_deriv(output))
+    hidden_layer.weights += inputs.T.dot(hidden_delta) * 10
+    output_layer.weights += output_layer.output.T.dot(output_delta) * 10
